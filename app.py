@@ -38,6 +38,7 @@ vk_random_girl_group_id_list = [
     "51744520",
     "163618600",
     "22162327",
+    "145987786",  # lulz
 ]
 
 
@@ -57,8 +58,15 @@ def get_image_from_vk(group_id_list):
     return url_list
 
 
+def simple_keyboard():
+    keyboard_markup = types.ReplyKeyboardMarkup()
+    btns_text = ("Скромная", "Титька", "Рандом")
+    keyboard_markup.row(*(types.KeyboardButton(text) for text in btns_text))
+    return keyboard_markup
+
+
 @dp.message_handler(
-    text=[
+    text_contains=[
         "Приличную",
         "приличную",
         "Приличная",
@@ -72,7 +80,9 @@ def get_image_from_vk(group_id_list):
 async def send_decent_girl(message: types.Message):
     if len(vk_decent_girl_queue) > 0:
         await bot.send_photo(
-            message.chat.id, types.InputFile.from_url(vk_decent_girl_queue.pop())
+            message.chat.id,
+            types.InputFile.from_url(vk_decent_girl_queue.pop()),
+            reply_markup=simple_keyboard(),
         )
     else:
         vk_decent_girl_queue.extend(get_image_from_vk(vk_decent_girl_group_id_list))
@@ -80,13 +90,15 @@ async def send_decent_girl(message: types.Message):
             await message.reply("Приличных не осталось!")
         else:
             await bot.send_photo(
-                message.chat.id, types.InputFile.from_url(vk_decent_girl_queue.pop())
+                message.chat.id,
+                types.InputFile.from_url(vk_decent_girl_queue.pop()),
+                reply_markup=simple_keyboard(),
             )
     print(f"decent girl count: {len(vk_decent_girl_queue)}")
 
 
 @dp.message_handler(
-    text=[
+    text_contains=[
         "Титьку",
         "титьку",
         "Титька",
@@ -100,7 +112,9 @@ async def send_decent_girl(message: types.Message):
 async def send_tits_girl(message: types.Message):
     if len(vk_tits_girl_queue) > 0:
         await bot.send_photo(
-            message.chat.id, types.InputFile.from_url(vk_tits_girl_queue.pop())
+            message.chat.id,
+            types.InputFile.from_url(vk_tits_girl_queue.pop()),
+            reply_markup=simple_keyboard(),
         )
     else:
         vk_tits_girl_queue.extend(get_image_from_vk(vk_tits_girl_group_id_list))
@@ -108,13 +122,15 @@ async def send_tits_girl(message: types.Message):
             await message.reply("Сиськи закончились!")
         else:
             await bot.send_photo(
-                message.chat.id, types.InputFile.from_url(vk_tits_girl_queue.pop())
+                message.chat.id,
+                types.InputFile.from_url(vk_tits_girl_queue.pop()),
+                reply_markup=simple_keyboard(),
             )
     print(f"tits girl count: {len(vk_tits_girl_queue)}")
 
 
 @dp.message_handler(
-    text=[
+    text_contains=[
         "Случайную",
         "Случайно",
         "Рандом",
@@ -128,7 +144,9 @@ async def send_tits_girl(message: types.Message):
 async def send_random_girl(message: types.Message):
     if len(vk_random_girl_queue) > 0:
         await bot.send_photo(
-            message.chat.id, types.InputFile.from_url(vk_random_girl_queue.pop())
+            message.chat.id,
+            types.InputFile.from_url(vk_random_girl_queue.pop()),
+            reply_markup=simple_keyboard(),
         )
     else:
         vk_random_girl_queue.extend(get_image_from_vk(vk_random_girl_group_id_list))
@@ -136,7 +154,9 @@ async def send_random_girl(message: types.Message):
             await message.reply("Случайных больше нет!")
         else:
             await bot.send_photo(
-                message.chat.id, types.InputFile.from_url(vk_random_girl_queue.pop())
+                message.chat.id,
+                types.InputFile.from_url(vk_random_girl_queue.pop()),
+                reply_markup=simple_keyboard(),
             )
     print(f"random girl count: {len(vk_random_girl_queue)}")
 
