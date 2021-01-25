@@ -13,9 +13,11 @@ bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
 dp = Dispatcher(bot)
 
 vk_token = os.getenv("VKONTAKTE_TOKEN")
+
 vk_decent_girl_queue = deque()
 vk_tits_girl_queue = deque()
 vk_random_girl_queue = deque()
+
 vk_decent_girl_group_id_list = [
     "41515536",
     "48410284",
@@ -25,9 +27,17 @@ vk_decent_girl_group_id_list = [
 ]
 vk_tits_girl_group_id_list = [
     "10698161",
+    "75564179",
+    "10698161",
+    "41217948",
+    "66760160",
 ]
 vk_random_girl_group_id_list = [
     "28592774",
+    "112063288",
+    "51744520",
+    "163618600",
+    "22162327",
 ]
 
 
@@ -47,7 +57,18 @@ def get_image_from_vk(group_id_list):
     return url_list
 
 
-@dp.message_handler(text=["Приличную", "приличную"])
+@dp.message_handler(
+    text=[
+        "Приличную",
+        "приличную",
+        "Приличная",
+        "приличная",
+        "Скромную",
+        "скромную",
+        "Скромная",
+        "скромная",
+    ]
+)
 async def send_decent_girl(message: types.Message):
     if len(vk_decent_girl_queue) > 0:
         await bot.send_photo(
@@ -64,7 +85,18 @@ async def send_decent_girl(message: types.Message):
     print(f"decent girl count: {len(vk_decent_girl_queue)}")
 
 
-@dp.message_handler(text=["Титьку", "титьку", "Сиську", "сиську"])
+@dp.message_handler(
+    text=[
+        "Титьку",
+        "титьку",
+        "Титька",
+        "титька",
+        "Сиську",
+        "сиську",
+        "Сиська",
+        "сиська",
+    ]
+)
 async def send_tits_girl(message: types.Message):
     if len(vk_tits_girl_queue) > 0:
         await bot.send_photo(
@@ -82,7 +114,16 @@ async def send_tits_girl(message: types.Message):
 
 
 @dp.message_handler(
-    text=["Случайную", "Случайно", "Рандом", "случайную", "случайно", "рандом"]
+    text=[
+        "Случайную",
+        "Случайно",
+        "Рандом",
+        "Рандомную",
+        "случайную",
+        "случайно",
+        "рандом",
+        "рандомную",
+    ]
 )
 async def send_random_girl(message: types.Message):
     if len(vk_random_girl_queue) > 0:
@@ -90,7 +131,7 @@ async def send_random_girl(message: types.Message):
             message.chat.id, types.InputFile.from_url(vk_random_girl_queue.pop())
         )
     else:
-        vk_tits_girl_queue.extend(get_image_from_vk(vk_random_girl_group_id_list))
+        vk_random_girl_queue.extend(get_image_from_vk(vk_random_girl_group_id_list))
         if len(vk_random_girl_queue) == 0:
             await message.reply("Случайных больше нет!")
         else:
