@@ -9,166 +9,156 @@ from aiogram import Bot, Dispatcher, executor, types
 
 logging.basicConfig(level=logging.DEBUG)
 
-bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
-dp = Dispatcher(bot)
 
-vk_decent_girl_queue = deque()
-vk_tits_girl_queue = deque()
-vk_random_girl_queue = deque()
+class Category:
+    def __init__(self, vk_ids: list):
+        self.vk_ids = vk_ids
+        self.queue = deque(self.get_url_from_vk())
 
-vk_decent_girl_group_id_list = [
-    "41515536",
-    "48410284",
-    "55682860",
-    "18876721",
-    "56473407",
-]
-vk_tits_girl_group_id_list = [
-    "10698161",
-    "75564179",
-    "10698161",
-    "41217948",
-    "66760160",
-]
-vk_random_girl_group_id_list = [
-    "28592774",
-    "112063288",
-    "51744520",
-    "163618600",
-    "22162327",
-    "145987786",  # lulz
-]
+    def __str__(self) -> str:
+        return f"Items in stack: {len(self.queue)}"
 
-
-def get_image_from_vk(group_id_list):
-    url_list = []
-    for group_id in group_id_list:
-        response = requests.get(
-            f"https://api.vk.com/method/wall.get?owner_id=-{group_id}&count=100&filter=owner&extended=1&access_token={os.getenv('VKONTAKTE_TOKEN')}&v=5.126"
-        )
-        time.sleep(0.4)
-        for res in response.json()["response"]["items"]:
-            if res.get("attachments"):
-                attachments = res["attachments"][0]
-                if attachments.get("type") == "photo":
-                    url_list.append(attachments["photo"]["sizes"][-1]["url"])
-    random.shuffle(url_list)
-    return url_list
-
-
-def simple_keyboard():
-    keyboard_markup = types.ReplyKeyboardMarkup(
-        resize_keyboard=True,
-        row_width=3,
-        one_time_keyboard=False,
-        selective=True,
-    )
-    btns_text = ("Скромная", "Сиська", "Рандом")
-    keyboard_markup.row(*(types.KeyboardButton(text) for text in btns_text))
-    return keyboard_markup
-
-
-@dp.message_handler(
-    text=[
-        "Приличную",
-        "приличную",
-        "Приличная",
-        "приличная",
-        "Скромную",
-        "скромную",
-        "Скромная",
-        "скромная",
-    ]
-)
-async def send_decent_girl(message: types.Message):
-    if len(vk_decent_girl_queue) > 0:
-        await bot.send_photo(
-            message.chat.id,
-            types.InputFile.from_url(vk_decent_girl_queue.pop()),
-            reply_to_message_id=message.message_id,
-            reply_markup=simple_keyboard(),
-        )
-    else:
-        vk_decent_girl_queue.extend(get_image_from_vk(vk_decent_girl_group_id_list))
-        if len(vk_decent_girl_queue) == 0:
-            await message.reply("Приличных не осталось!")
-        else:
-            await bot.send_photo(
-                message.chat.id,
-                types.InputFile.from_url(vk_decent_girl_queue.pop()),
-                reply_to_message_id=message.message_id,
-                reply_markup=simple_keyboard(),
+    def get_url_from_vk(self):
+        self.urls = []
+        for self.i in self.vk_ids:
+            self.response = requests.get(
+                f"https://api.vk.com/method/wall.get?owner_id=-{self.i}&count=100&filter=owner&extended=1&access_token={os.getenv('VKONTAKTE_TOKEN')}&v=5.126"
             )
-    print(f"decent girl count: {len(vk_decent_girl_queue)}")
+            time.sleep(0.33)
+            for self.r in self.response.json()["response"]["items"]:
+                if self.r.get("attachments"):
+                    self.attachments = self.r["attachments"][0]
+                    if self.attachments.get("type") == "photo":
+                        self.urls.append(self.attachments["photo"]["sizes"][-1]["url"])
+        random.shuffle(self.urls)
+        return self.urls
 
-
-@dp.message_handler(
-    text=[
-        "Титьку",
-        "титьку",
-        "Титька",
-        "титька",
-        "Сиську",
-        "сиську",
-        "Сиська",
-        "сиська",
-    ]
-)
-async def send_tits_girl(message: types.Message):
-    if len(vk_tits_girl_queue) > 0:
-        await bot.send_photo(
-            message.chat.id,
-            types.InputFile.from_url(vk_tits_girl_queue.pop()),
-            reply_to_message_id=message.message_id,
-            reply_markup=simple_keyboard(),
-        )
-    else:
-        vk_tits_girl_queue.extend(get_image_from_vk(vk_tits_girl_group_id_list))
-        if len(vk_tits_girl_queue) == 0:
-            await message.reply("Сиськи закончились!")
+    def get_url(self):
+        if len(self.queue) > 0:
+            return self.queue.pop()
         else:
-            await bot.send_photo(
-                message.chat.id,
-                types.InputFile.from_url(vk_tits_girl_queue.pop()),
-                reply_to_message_id=message.message_id,
-                reply_markup=simple_keyboard(),
-            )
-    print(f"tits girl count: {len(vk_tits_girl_queue)}")
+            self.queue.extend(self.get_url_from_vk())
+            return self.queue.pop()
+
+    url = property(get_url)
 
 
-@dp.message_handler(
-    text=[
-        "Случайную",
-        "Случайно",
-        "Рандом",
-        "Рандомную",
-        "случайную",
-        "случайно",
-        "рандом",
-        "рандомную",
-    ]
-)
-async def send_random_girl(message: types.Message):
-    if len(vk_random_girl_queue) > 0:
-        await bot.send_photo(
-            message.chat.id,
-            types.InputFile.from_url(vk_random_girl_queue.pop()),
-            reply_to_message_id=message.message_id,
-            reply_markup=simple_keyboard(),
+class Telegram:
+    def __init__(self, buttons: tuple) -> None:
+        self.bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
+        self.dp = Dispatcher(self.bot)
+        self.buttons = buttons
+
+    def simple_keyboard(self):
+        self.keyboard_markup = types.ReplyKeyboardMarkup(
+            resize_keyboard=True,
+            row_width=3,
+            one_time_keyboard=False,
+            selective=True,
         )
-    else:
-        vk_random_girl_queue.extend(get_image_from_vk(vk_random_girl_group_id_list))
-        if len(vk_random_girl_queue) == 0:
-            await message.reply("Случайных больше нет!")
-        else:
-            await bot.send_photo(
-                message.chat.id,
-                types.InputFile.from_url(vk_random_girl_queue.pop()),
-                reply_to_message_id=message.message_id,
-                reply_markup=simple_keyboard(),
-            )
-    print(f"random girl count: {len(vk_random_girl_queue)}")
+        self.keyboard_markup.row(
+            *(types.KeyboardButton(self.text) for self.text in self.buttons)
+        )
+        return self.keyboard_markup
+
+
+class Command:
+    def __init__(self) -> None:
+        self.index = {
+            "Сиська": ["Сиська", "Титька", "Грудь", "Сосок", self.tits],
+            "Попа": ["Попа", "Жопа", "Задница", "Попец", "Попка", self.ass],
+            "Азия": ["Азия", "Азиатки", self.asian],
+            "Рандом": ["Рандом", "Случайную", self.random_girl],
+            "Скромная": ["Приличная", "Скромная", self.decent],
+        }
+        self.decent_category = Category(
+            [
+                "41515536",
+                "48410284",
+                "55682860",
+                "18876721",
+                "56473407",
+            ]
+        )
+        self.ass_category = Category(
+            [
+                "170989088",
+                "63996148",
+                "89034623",
+                "165009163",
+                "147498239",
+            ]
+        )
+        self.tits_category = Category(
+            [
+                "10698161",
+                "75564179",
+                "10698161",
+                "41217948",
+                "66760160",
+            ]
+        )
+        self.random_girl_category = Category(
+            [
+                "28592774",
+                "112063288",
+                "51744520",
+                "163618600",
+                "22162327",
+                "145987786",  # lulz
+            ]
+        )
+        self.asian_category = Category(
+            [
+                "165058238",
+                "106947487",
+                "196988750",
+                "112115472",
+                "99949199",
+                "11695248",
+            ]
+        )
+
+    def __new__(cls):
+        if not hasattr(cls, "instance"):
+            cls.instance = super(Command, cls).__new__(cls)
+        return cls.instance
+
+    def decent(self):
+        """Приличная"""
+        return self.decent_category.url
+
+    def tits(self):
+        """Сиська"""
+        return self.tits_category.url
+
+    def ass(self):
+        return self.ass_category.url
+
+    def random_girl(self):
+        """Случайная"""
+        return self.random_girl_category.url
+
+    def asian(self):
+        """Азиатки"""
+        return self.asian_category.url
 
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    c = Command()
+    t = Telegram(tuple([k for k, v in c.index.items()]))
+
+    @t.dp.message_handler()
+    async def send(message: types.Message):
+        for key, value in c.index.items():
+            for v in value[:-1]:
+                if message.text.title() in v:
+                    await t.bot.send_photo(
+                        message.chat.id,
+                        types.InputFile.from_url(value[-1]()),
+                        reply_to_message_id=message.message_id,
+                        reply_markup=t.simple_keyboard(),
+                    )
+                    break
+
+    executor.start_polling(t.dp, skip_updates=True)
