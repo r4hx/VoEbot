@@ -1,8 +1,8 @@
 import logging
+import os
 import random
 import time
 from collections import deque
-import os
 
 import requests
 from aiogram import Bot, Dispatcher, executor, types
@@ -11,8 +11,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
 dp = Dispatcher(bot)
-
-vk_token = os.getenv("VKONTAKTE_TOKEN")
 
 vk_decent_girl_queue = deque()
 vk_tits_girl_queue = deque()
@@ -46,7 +44,7 @@ def get_image_from_vk(group_id_list):
     url_list = []
     for group_id in group_id_list:
         response = requests.get(
-            f"https://api.vk.com/method/wall.get?owner_id=-{group_id}&count=100&filter=owner&extended=1&access_token={vk_token}&v=5.126"
+            f"https://api.vk.com/method/wall.get?owner_id=-{group_id}&count=100&filter=owner&extended=1&access_token={os.getenv('VKONTAKTE_TOKEN')}&v=5.126"
         )
         time.sleep(0.4)
         for res in response.json()["response"]["items"]:
@@ -59,14 +57,19 @@ def get_image_from_vk(group_id_list):
 
 
 def simple_keyboard():
-    keyboard_markup = types.ReplyKeyboardMarkup()
-    btns_text = ("Скромная", "Титька", "Рандом")
+    keyboard_markup = types.ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        row_width=3,
+        one_time_keyboard=False,
+        selective=True,
+    )
+    btns_text = ("Скромная", "Сиська", "Рандом")
     keyboard_markup.row(*(types.KeyboardButton(text) for text in btns_text))
     return keyboard_markup
 
 
 @dp.message_handler(
-    text_contains=[
+    text=[
         "Приличную",
         "приличную",
         "Приличная",
@@ -82,6 +85,7 @@ async def send_decent_girl(message: types.Message):
         await bot.send_photo(
             message.chat.id,
             types.InputFile.from_url(vk_decent_girl_queue.pop()),
+            reply_to_message_id=message.message_id,
             reply_markup=simple_keyboard(),
         )
     else:
@@ -92,13 +96,14 @@ async def send_decent_girl(message: types.Message):
             await bot.send_photo(
                 message.chat.id,
                 types.InputFile.from_url(vk_decent_girl_queue.pop()),
+                reply_to_message_id=message.message_id,
                 reply_markup=simple_keyboard(),
             )
     print(f"decent girl count: {len(vk_decent_girl_queue)}")
 
 
 @dp.message_handler(
-    text_contains=[
+    text=[
         "Титьку",
         "титьку",
         "Титька",
@@ -114,6 +119,7 @@ async def send_tits_girl(message: types.Message):
         await bot.send_photo(
             message.chat.id,
             types.InputFile.from_url(vk_tits_girl_queue.pop()),
+            reply_to_message_id=message.message_id,
             reply_markup=simple_keyboard(),
         )
     else:
@@ -124,13 +130,14 @@ async def send_tits_girl(message: types.Message):
             await bot.send_photo(
                 message.chat.id,
                 types.InputFile.from_url(vk_tits_girl_queue.pop()),
+                reply_to_message_id=message.message_id,
                 reply_markup=simple_keyboard(),
             )
     print(f"tits girl count: {len(vk_tits_girl_queue)}")
 
 
 @dp.message_handler(
-    text_contains=[
+    text=[
         "Случайную",
         "Случайно",
         "Рандом",
@@ -146,6 +153,7 @@ async def send_random_girl(message: types.Message):
         await bot.send_photo(
             message.chat.id,
             types.InputFile.from_url(vk_random_girl_queue.pop()),
+            reply_to_message_id=message.message_id,
             reply_markup=simple_keyboard(),
         )
     else:
@@ -156,6 +164,7 @@ async def send_random_girl(message: types.Message):
             await bot.send_photo(
                 message.chat.id,
                 types.InputFile.from_url(vk_random_girl_queue.pop()),
+                reply_to_message_id=message.message_id,
                 reply_markup=simple_keyboard(),
             )
     print(f"random girl count: {len(vk_random_girl_queue)}")
