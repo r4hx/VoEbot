@@ -11,14 +11,17 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class Category:
-    def __init__(self, vk_ids: list):
+    def __init__(self, vk_ids: list) -> None:
+        """Init queue"""
         self.vk_ids = vk_ids
         self.queue = deque(self.get_url_from_vk())
 
     def __str__(self) -> str:
+        """Return items count in deque"""
         return f"Items in stack: {len(self.queue)}"
 
-    def get_url_from_vk(self):
+    def get_url_from_vk(self) -> list:
+        """Get photo url from vk group"""
         self.urls = []
         for self.i in self.vk_ids:
             self.response = requests.get(
@@ -33,7 +36,8 @@ class Category:
         random.shuffle(self.urls)
         return self.urls
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Getter for url"""
         if len(self.queue) > 0:
             return self.queue.pop()
         else:
@@ -45,11 +49,13 @@ class Category:
 
 class Telegram:
     def __init__(self, buttons: tuple) -> None:
+        """Create bot object and dispatcher"""
         self.bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
         self.dp = Dispatcher(self.bot)
         self.buttons = buttons
 
     def simple_keyboard(self):
+        """Generate keyboard for telegram chat menu"""
         self.keyboard_markup = types.ReplyKeyboardMarkup(
             resize_keyboard=True,
             row_width=3,
@@ -64,6 +70,7 @@ class Telegram:
 
 class Command:
     def __init__(self) -> None:
+        """Make command index"""
         self.index = {
             "Сиська": ["Сиська", "Титька", "Грудь", "Сосок", self.tits],
             "Попа": ["Попа", "Жопа", "Задница", "Попец", "Попка", self.ass],
@@ -120,27 +127,24 @@ class Command:
         )
 
     def __new__(cls):
+        """singlton"""
         if not hasattr(cls, "instance"):
             cls.instance = super(Command, cls).__new__(cls)
         return cls.instance
 
     def decent(self):
-        """Приличная"""
         return self.decent_category.url
 
     def tits(self):
-        """Сиська"""
         return self.tits_category.url
 
     def ass(self):
         return self.ass_category.url
 
     def random_girl(self):
-        """Случайная"""
         return self.random_girl_category.url
 
     def asian(self):
-        """Азиатки"""
         return self.asian_category.url
 
 
