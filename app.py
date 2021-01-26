@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 import random
@@ -112,7 +113,6 @@ class Command:
                 "51744520",
                 "163618600",
                 "22162327",
-                "145987786",  # lulz
             ]
         )
         self.asian_category = Category(
@@ -157,12 +157,23 @@ if __name__ == "__main__":
         for key, value in c.index.items():
             for v in value[:-1]:
                 if message.text.title() in v:
-                    await t.bot.send_photo(
-                        message.chat.id,
-                        types.InputFile.from_url(value[-1]()),
-                        reply_to_message_id=message.message_id,
-                        reply_markup=t.simple_keyboard(),
-                    )
-                    break
+                    if datetime.datetime.now().strftime("%A") in [
+                        "Friday",
+                        "Saturday",
+                        "Sunday",
+                    ]:
+                        await t.bot.send_photo(
+                            message.chat.id,
+                            types.InputFile.from_url(value[-1]()),
+                            reply_to_message_id=message.message_id,
+                            reply_markup=t.simple_keyboard(),
+                        )
+                        break
+                    else:
+                        await t.bot.send_message(
+                            message.chat.id,
+                            reply_to_message_id=message.message_id,
+                            text="Рабочие дни: пт-вс.",
+                        )
 
     executor.start_polling(t.dp, skip_updates=True)
