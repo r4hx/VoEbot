@@ -73,61 +73,30 @@ class Command:
     def __init__(self) -> None:
         """Make command index"""
         self.index = {
-            "Сиська": ["Сиська", "Титька", "Грудь", "Сосок", self.tits],
-            "Попа": ["Попа", "Жопа", "Задница", "Попец", "Попка", self.ass],
+            "Сиська": ["Сиська", "Сиськи", "Грудь", "Титька", "Титьки", self.tits],
+            "Попа": ["Попа", "Жопа", "Задница", "Попец", "Попка", "Жопка", self.ass],
             "Азия": ["Азия", "Азиатки", self.asian],
             "Рандом": ["Рандом", "Случайную", self.random_girl],
-            "Скромная": ["Приличная", "Скромная", self.decent],
+            "Скромная": ["Приличная", "Скромная", "Приличную", "Скромную", self.decent],
         }
         self.decent_category = Category(
-            [
-                "41515536",
-                "48410284",
-                "55682860",
-                "18876721",
-                "56473407",
-            ]
+            ["41515536", "48410284", "55682860", "18876721", "56473407"]
         )
         self.ass_category = Category(
-            [
-                "170989088",
-                "63996148",
-                "89034623",
-                "165009163",
-                "147498239",
-            ]
+            ["170989088", "63996148", "89034623", "165009163", "147498239"]
         )
         self.tits_category = Category(
-            [
-                "10698161",
-                "75564179",
-                "10698161",
-                "41217948",
-                "66760160",
-            ]
+            ["10698161", "75564179", "10698161", "41217948", "66760160"]
         )
         self.random_girl_category = Category(
-            [
-                "28592774",
-                "112063288",
-                "51744520",
-                "163618600",
-                "22162327",
-            ]
+            ["28592774", "112063288", "51744520", "163618600", "22162327"]
         )
         self.asian_category = Category(
-            [
-                "165058238",
-                "106947487",
-                "196988750",
-                "112115472",
-                "99949199",
-                "11695248",
-            ]
+            ["165058238", "106947487", "196988750", "112115472", "99949199", "11695248"]
         )
 
     def __new__(cls):
-        """singlton"""
+        """make singltone objects"""
         if not hasattr(cls, "instance"):
             cls.instance = super(Command, cls).__new__(cls)
         return cls.instance
@@ -156,7 +125,7 @@ if __name__ == "__main__":
     async def send(message: types.Message):
         for key, value in c.index.items():
             for v in value[:-1]:
-                if message.text.title() in v:
+                if message.text.title() == v:
                     if datetime.datetime.now().strftime("%A") in [
                         "Friday",
                         "Saturday",
