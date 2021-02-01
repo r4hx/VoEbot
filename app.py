@@ -52,6 +52,7 @@ class Telegram:
     def __init__(self, buttons: tuple) -> None:
         """Create bot object and dispatcher"""
         self.bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
+        self.admin_list = [os.getenv("TELEGRAM_ADMIN")]
         self.dp = Dispatcher(self.bot)
         self.exclude_users = deque()
         self.buttons = buttons
@@ -75,6 +76,13 @@ class Telegram:
         self.counter = counter
         self.exclude_users.append((to_user_id, self.counter))
 
+    def is_admin(self, user_id):
+        self.user_id = user_id
+        if self.user_id in self.admin_list:
+            return True
+        else:
+            return False
+
 
 class Command:
     def __init__(self) -> None:
@@ -94,6 +102,7 @@ class Command:
         self.asian_category = Category(
             ["165058238", "106947487", "196988750", "112115472", "99949199", "11695248"]
         )
+
         self.index = {
             "Сиська": [
                 "Сиська",
@@ -101,7 +110,7 @@ class Command:
                 "Грудь",
                 "Титька",
                 "Титьки",
-                self.tits_category.url,
+                self.get_tits,
             ],
             "Попа": [
                 "Попа",
@@ -110,24 +119,26 @@ class Command:
                 "Попец",
                 "Попка",
                 "Жопка",
-                self.ass_category.url,
+                self.get_ass,
             ],
             "Азия": [
                 "Азия",
                 "Азиатки",
-                self.asian_category.url,
+                "Азиатку",
+                "Азиатка",
+                self.get_asian,
             ],
             "Рандом": [
                 "Рандом",
                 "Случайную",
-                self.random_girl_category.url,
+                self.get_random,
             ],
             "Скромная": [
                 "Приличная",
                 "Скромная",
                 "Приличную",
                 "Скромную",
-                self.decent_category.url,
+                self.get_decent,
             ],
         }
 
@@ -137,21 +148,33 @@ class Command:
             cls.instance = super(Command, cls).__new__(cls)
         return cls.instance
 
+    def get_tits(self):
+        return self.tits_category.url
+
+    def get_ass(self):
+        return self.ass_category.url
+
+    def get_asian(self):
+        return self.asian_category.url
+
+    def get_random(self):
+        return self.random_girl_category.url
+
+    def get_decent(self):
+        return self.decent_category.url
+
 
 if __name__ == "__main__":
     c = Command()
-    t = Telegram(tuple([k for k, v in c.index.items()]))
+    buttons = tuple([button for button in c.index.keys()])
+    t = Telegram(buttons)
 
     @t.dp.message_handler()
     async def send(message: types.Message):
-        for key, value in c.index.items():
+        for value in c.index.values():
             for v in value[:-1]:
                 if message.text.title() == v:
-                    if datetime.datetime.now().strftime("%A") in [
-                        "Friday",
-                        "Saturday",
-                        "Sunday",
-                    ]:
+                    if datetime.datetime.now().strftime("%A") in ["Friday", "Saturday", "Sunday"] or t.is_admin(message.from_user.id):
                         await t.bot.send_photo(
                             message.chat.id,
                             types.InputFile.from_url(value[-1]()),
@@ -163,7 +186,7 @@ if __name__ == "__main__":
                         await t.bot.send_message(
                             message.chat.id,
                             reply_to_message_id=message.message_id,
-                            text="Рабочие дни: пт-вс.",
+                            text="У меня выходной, приходи в пятницу, субботу и воскресенье!",
                         )
 
     executor.start_polling(t.dp, skip_updates=True)
