@@ -53,6 +53,7 @@ class Telegram:
         """Create bot object and dispatcher"""
         self.bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
         self.dp = Dispatcher(self.bot)
+        self.exclude_users = deque()
         self.buttons = buttons
 
     def simple_keyboard(self):
@@ -68,17 +69,16 @@ class Telegram:
         )
         return self.keyboard_markup
 
+    def add_exclude_users(self, from_user_id, to_user_id, counter):
+        self.user_id = to_user_id
+        self.from_user_id = from_user_id
+        self.counter = counter
+        self.exclude_users.append((to_user_id, self.counter))
+
 
 class Command:
     def __init__(self) -> None:
         """Make command index"""
-        self.index = {
-            "Сиська": ["Сиська", "Сиськи", "Грудь", "Титька", "Титьки", self.tits],
-            "Попа": ["Попа", "Жопа", "Задница", "Попец", "Попка", "Жопка", self.ass],
-            "Азия": ["Азия", "Азиатки", self.asian],
-            "Рандом": ["Рандом", "Случайную", self.random_girl],
-            "Скромная": ["Приличная", "Скромная", "Приличную", "Скромную", self.decent],
-        }
         self.decent_category = Category(
             ["41515536", "48410284", "55682860", "18876721", "56473407"]
         )
@@ -94,27 +94,48 @@ class Command:
         self.asian_category = Category(
             ["165058238", "106947487", "196988750", "112115472", "99949199", "11695248"]
         )
+        self.index = {
+            "Сиська": [
+                "Сиська",
+                "Сиськи",
+                "Грудь",
+                "Титька",
+                "Титьки",
+                self.tits_category.url,
+            ],
+            "Попа": [
+                "Попа",
+                "Жопа",
+                "Задница",
+                "Попец",
+                "Попка",
+                "Жопка",
+                self.ass_category.url,
+            ],
+            "Азия": [
+                "Азия",
+                "Азиатки",
+                self.asian_category.url,
+            ],
+            "Рандом": [
+                "Рандом",
+                "Случайную",
+                self.random_girl_category.url,
+            ],
+            "Скромная": [
+                "Приличная",
+                "Скромная",
+                "Приличную",
+                "Скромную",
+                self.decent_category.url,
+            ],
+        }
 
     def __new__(cls):
         """make singltone objects"""
         if not hasattr(cls, "instance"):
             cls.instance = super(Command, cls).__new__(cls)
         return cls.instance
-
-    def decent(self):
-        return self.decent_category.url
-
-    def tits(self):
-        return self.tits_category.url
-
-    def ass(self):
-        return self.ass_category.url
-
-    def random_girl(self):
-        return self.random_girl_category.url
-
-    def asian(self):
-        return self.asian_category.url
 
 
 if __name__ == "__main__":
