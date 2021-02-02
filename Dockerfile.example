@@ -4,6 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV TELEGRAM_TOKEN=
 ENV VKONTAKTE_TOKEN=
+ENV TELEGRAM_ADMIN_ID=
 ADD . .
 RUN apt-get update
 RUN apt-get -y --no-install-recommends install python3-minimal python3-pip python3-setuptools python3-multidict python3-requests python3-yarl
