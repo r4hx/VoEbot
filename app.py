@@ -52,7 +52,7 @@ class Telegram:
     def __init__(self, buttons: tuple) -> None:
         """Create bot object and dispatcher"""
         self.bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
-        self.admin_user_id = os.getenv("TELEGRAM_ADMIN_ID")
+        self.admin_user_id = int(os.getenv("TELEGRAM_ADMIN_ID", 0))
         self.dp = Dispatcher(self.bot)
         self.exclude_users = deque()
         self.buttons = buttons
@@ -182,11 +182,4 @@ if __name__ == "__main__":
                             reply_markup=t.simple_keyboard(),
                         )
                         break
-                    else:
-                        await t.bot.send_message(
-                            message.chat.id,
-                            reply_to_message_id=message.message_id,
-                            text="У меня выходной, приходи в пятницу, субботу и воскресенье!",
-                        )
-
     executor.start_polling(t.dp, skip_updates=True)
