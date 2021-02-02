@@ -52,7 +52,7 @@ class Telegram:
     def __init__(self, buttons: tuple) -> None:
         """Create bot object and dispatcher"""
         self.bot = Bot(token=os.getenv("TELEGRAM_TOKEN"))
-        self.admin_list = [os.getenv("TELEGRAM_ADMIN")]
+        self.admin_user_id = os.getenv("TELEGRAM_ADMIN")
         self.dp = Dispatcher(self.bot)
         self.exclude_users = deque()
         self.buttons = buttons
@@ -78,7 +78,7 @@ class Telegram:
 
     def is_admin(self, user_id):
         self.user_id = user_id
-        if self.user_id in self.admin_list:
+        if self.user_id == self.admin_user_id:
             return True
         else:
             return False
